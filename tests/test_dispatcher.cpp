@@ -748,24 +748,26 @@ TEST_CASE("concurrent stop is idempotent", "[dispatcher][stop]") {
 
 TEST_CASE("stop preserves close failure and a later stop can complete",
           "[dispatcher][stop][errors]") {
+    std::atomic<int> close_calls{0};
     class RetryCloseTransport final : public linkerbot::can::CANTransport {
       public:
+        explicit RetryCloseTransport(std::atomic<int> &calls) : close_calls_(calls) {}
         auto read() -> std::optional<Message> override {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             return std::nullopt;
         }
         auto write(const Message &) -> void override {}
         auto close() -> void override {
-            if (++close_calls == 1) {
+            if (++close_calls_ == 1) {
                 throw TransportIOError("close failed",
                                        std::make_error_code(std::errc::device_or_resource_busy));
             }
         }
-        std::atomic<int> close_calls{0};
+      private:
+        std::atomic<int> &close_calls_;
     };
 
-    auto transport = std::make_unique<RetryCloseTransport>();
-    auto *raw = transport.get();
+    auto transport = std::make_unique<RetryCloseTransport>(close_calls);
     CANDispatcher dispatcher(std::move(transport));
     try {
         dispatcher.stop();
@@ -775,7 +777,7 @@ TEST_CASE("stop preserves close failure and a later stop can complete",
     }
     REQUIRE(dispatcher.get_health().state == TransportState::kFaulted);
     REQUIRE_NOTHROW(dispatcher.stop());
-    REQUIRE(raw->close_calls.load() == 2);
+    REQUIRE(close_calls.load() == 2);
     REQUIRE(dispatcher.get_health().state == TransportState::kClosed);
 }
 
