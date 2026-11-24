@@ -763,6 +763,7 @@ TEST_CASE("stop preserves close failure and a later stop can complete",
                                        std::make_error_code(std::errc::device_or_resource_busy));
             }
         }
+
       private:
         std::atomic<int> &close_calls_;
     };
