@@ -82,7 +82,7 @@ jobs:
       - name: Restore exact fixed CMake installation
         if: steps.cmake-tool.outputs.enabled == 'true'
         id: cmake-cache
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.cmake-tool.outputs.directory }}
           key: ${{ steps.cmake-tool.outputs.key }}
@@ -135,7 +135,7 @@ jobs:
         # PRs may read branch-scoped/default-branch caches but never publish one.
         # Manual dispatch requires repository write access; exact-key restore only.
         if: steps.cmake-tool.outputs.enabled == 'true' && steps.cmake-cache.outputs.cache-hit != 'true' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && startsWith(github.ref, 'refs/heads/')
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.cmake-tool.outputs.directory }}
           key: ${{ steps.cmake-tool.outputs.key }}
