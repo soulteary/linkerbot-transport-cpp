@@ -139,7 +139,7 @@ if(LINKERBOT_TRANSPORT_BUILD_TESTS)
         FetchContent_Declare(
             Catch2
             GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-            GIT_TAG v3.8.1
+            GIT_TAG v3.16.1
             GIT_SHALLOW TRUE
         )
         FetchContent_MakeAvailable(Catch2)
